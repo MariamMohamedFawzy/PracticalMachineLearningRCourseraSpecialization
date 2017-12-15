@@ -55,14 +55,15 @@ valid_data <- data[-train_ind, ]
 ```
 
 
-###Training the model
+###Training the model  
+I have uses sample of the training data as it takes so much time
 
 ```{r}
 
 library(caret)
 
 tc <- trainControl(method = 'cv', number = 5)
-model = train(classe ~ ., data=train_data, method = 'rf', trainControl = tc)
+model = train(classe ~ ., data=train_data[1:1000,], method = 'rf', trainControl = tc)
 
 y_pred_valid = predict(model, valid_data)
 
@@ -70,7 +71,10 @@ table(y_pred_valid, valid_data$classe)
 
 
 ```
-
+###get the confusion matrix
+```{r}
+confusionMatrix(y_pred_valid, valid_data$classe)
+```
 ###Get preditions
 
 ```{r}
