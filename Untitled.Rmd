@@ -1,0 +1,81 @@
+---
+title: "Practical Mcahine Learning Project"
+author: "Mariam Mohamed"
+date: "12/15/2017"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+###Load the data
+
+```{r}
+data = read.csv('/Users/apple/Desktop/Prediction_ML/pml-training.csv')
+test_data = read.csv('/Users/apple/Desktop/Prediction_ML/pml-testing.csv')
+
+```
+
+###Summary
+
+```{r}
+summary(data)
+
+```
+
+
+###Data preprocessing and cleaning
+
+```{r}
+levels(data$new_window) <- c(0, 1)
+levels(test_data$new_window) <- c(0, 1)
+
+data$classe <- as.factor(data$classe)
+
+cols_to_choose = c("raw_timestamp_part_1", "raw_timestamp_part_2", "new_window", "num_window", "roll_belt", "pitch_belt", "yaw_belt", "total_accel_belt", "gyros_belt_x", "gyros_belt_y", "gyros_belt_z", "accel_belt_x", "accel_belt_y", "accel_belt_z", "magnet_belt_x" , "magnet_belt_y", "magnet_belt_z" ,"roll_arm", "pitch_arm" , "yaw_arm" ,"total_accel_arm", "gyros_arm_x", "gyros_arm_y" , "gyros_arm_z", "accel_arm_x", "accel_arm_y", "accel_arm_z" , "magnet_arm_x", "magnet_arm_y", "magnet_arm_z", "roll_dumbbell", "pitch_dumbbell", "yaw_dumbbell", "classe")           
+
+data <- data[, names(data) %in% cols_to_choose]
+
+```
+
+
+###Data split into train and valid splits
+
+```{r}
+
+smp_size <- floor(0.8 * nrow(data))
+
+
+set.seed(123)
+train_ind <- sample(seq_len(nrow(data)), size = smp_size)
+
+train_data <- data[train_ind, ]
+valid_data <- data[-train_ind, ]
+
+
+```
+
+
+###Training the model
+
+```{r}
+
+library(caret)
+
+tc <- trainControl(method = 'cv', number = 5)
+model = train(classe ~ ., data=train_data, method = 'rf', trainControl = tc)
+
+y_pred_valid = predict(model, valid_data)
+
+table(y_pred_valid, valid_data$classe)
+
+
+```
+
+###Get preditions
+
+```{r}
+
+y_pred_test <- predict(model, test_data)
+y_pred_test
+
+```
